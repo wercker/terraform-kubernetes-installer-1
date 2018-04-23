@@ -331,7 +331,7 @@ variable "flannel_ver" {
 }
 
 variable "k8s_ver" {
-  default = "1.8.5"
+  default = "1.9.6"
 }
 
 variable "k8s_dashboard_ver" {

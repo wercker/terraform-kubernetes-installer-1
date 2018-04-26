@@ -165,6 +165,12 @@ variable "ssh_public_key_openssh" {
   default     = ""
 }
 
+variable "kubernetes_network_plugin" {
+  description = "The Kubernetes network plugin to use: flannel | canal"
+  type        = "string"
+  default     = "flannel"
+}
+
 variable "flannel_network_cidr" {
   description = "A CIDR notation IP range to use for the entire flannel network"
   type        = "string"

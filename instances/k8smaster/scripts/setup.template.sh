@@ -154,19 +154,25 @@ until [ "$(curl localhost:8080/healthz 2>/dev/null)" == "ok" ]; do
 	sleep 3
 done
 
-# # Install flannel
-# kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/${flannel_ver}/Documentation/k8s-manifests/kube-flannel-rbac.yml
-#
-# ## This could be done better
-# curl -sSL https://raw.githubusercontent.com/coreos/flannel/${flannel_ver}/Documentation/kube-flannel.yml | \
-#     sed -e "s#10.244.0.0/16#${flannel_network_cidr}#g" \
-#         -e "s#vxlan#${flannel_backend}#g" | \
-#     kubectl apply -f -
+if [ "${kubernetes_network_plugin}" == "flannel" ]; then
+  # Install flannel
+  kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/${flannel_ver}/Documentation/k8s-manifests/kube-flannel-rbac.yml
 
-# Setup Kube CNI - canal
-# https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/canal/
-kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/canal/rbac.yaml
-kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/canal/canal.yaml
+  ## This could be done better
+  curl -sSL https://raw.githubusercontent.com/coreos/flannel/${flannel_ver}/Documentation/kube-flannel.yml | \
+      sed -e "s#10.244.0.0/16#${flannel_network_cidr}#g" \
+          -e "s#vxlan#${flannel_backend}#g" | \
+      kubectl apply -f -
+fi
+if [ "${kubernetes_network_plugin}" == "canal" ]; then
+  # Setup Kube CNI - canal
+  # https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/canal/
+  kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/canal/rbac.yaml
+  curl -sSL kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/canal/canal.yaml | \
+      sed -e "s#10.244.0.0/16#${flannel_network_cidr}#g" \
+          -e "s#vxlan#${flannel_backend}#g" | \
+      kubectl apply -f -
+fi
 
 # Install oci cloud controller manager
 kubectl apply -f /root/cloud-controller-secret.yaml
